@@ -11,7 +11,7 @@ fn main() {
         match line {
             Ok(line) => match decode_line(&line) {
                 Ok(num) => {
-                    // println!("{} decoded to {}", line, num);
+                    println!("{} decoded to {}", line, num);
                     sum += num as u64;
                 }
                 Err(msg) => {
@@ -29,25 +29,32 @@ fn main() {
 }
 
 fn decode_line(line: &str) -> Result<u8, String> {
-    let mut digits: Vec<u8> = Vec::new();
-
-    // find all digit strings in line, allowing for overlap
     lazy_static! {
         static ref RE: Regex =
             Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
     }
-    let mut i = 0;
-    while let Some(m) = RE.find(&line[i..]) {
-        i += m.start() + 1;
-        match decode_digit(m.as_str()) {
-            Some(d) => digits.push(d),
-            None => return Err(format!("Could not decode: {}", m.as_str())),
+
+    let mut first = None;
+    let mut last = None;
+
+    // find first match
+    if let Some(m) = RE.find(line) {
+        first = decode_digit(m.as_str());
+
+        // find another match, working backwards towards first match
+        let mut i = line.len() - 1;
+        while i > m.start() {
+            if let Some(m) = RE.find(&line[i..]) {
+                last = decode_digit(m.as_str());
+                break;
+            }
+            i -= 1;
         }
     }
 
-    match digits[..] {
-        [only] => Ok(only * 10 + only),
-        [first, .., last] => Ok(first * 10 + last),
+    match (first, last) {
+        (Some(only), None) => Ok(only * 10 + only),
+        (Some(first), Some(last)) => Ok(first * 10 + last),
         _ => Err(format!("Did not find digits in line: {}", line)),
     }
 }
