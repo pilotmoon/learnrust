@@ -1,0 +1,11 @@
+#!/bin/zsh
+set -e
+year=$1
+day=$2
+if [[ -z $year || -z $day ]]; then
+  echo "Usage: $0 <year> <day>"
+  exit 1
+fi
+bin=$(printf "advent_%02d_%02d" $year $day)
+echo "Getting input..."
+./get $year $day | cargo run --bin $bin 

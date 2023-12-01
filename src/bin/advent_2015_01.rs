@@ -2,7 +2,7 @@ use std::io::{self, Read};
 
 fn main() {
     let mut floor = 0;
-    let mut basement_pos = None;
+    let mut basement_pos: Option<usize> = None;
     for (pos, byte) in io::stdin().bytes().enumerate() {
         match byte {
             Ok(b'(') => floor += 1,
@@ -14,7 +14,7 @@ fn main() {
             }
         }
         if floor == -1 && basement_pos.is_none() {
-            // basement_pos = Some(pos);
+            basement_pos = Some(pos);
         }
     }
     if let Some(pos) = basement_pos {

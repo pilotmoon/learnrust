@@ -5,7 +5,7 @@ use std::io;
 extern crate lazy_static;
 
 fn main() {
-    println!("started");
+    println!("Started");
     let mut sum: u64 = 0;
     for line in io::stdin().lines() {
         match line {
@@ -53,7 +53,7 @@ fn decode_line(line: &str) -> Result<u8, String> {
     // combine digits
     match digits {
         (Some(first), Some(last)) => Ok(first * 10 + last),
-        _ => Err(format!("Did not find digits in line: {}", line)),
+        _ => Err(format!("No digits in line: {}", line)),
     }
 }
 
