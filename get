@@ -6,4 +6,9 @@ if [[ -z $year || -z $day ]]; then
   echo "Usage: $0 <year> <day>"
   exit 1
 fi
-curl --silent --cookie $(cat ~/.aoc-cookie) "https://adventofcode.com/$year/day/$day/input"
+mkdir -p txt
+txt=txt/$(printf "%02d_%02d.txt" $year $day)
+if [[ ! -f $txt ]]; then
+  curl --silent --cookie $(cat ~/.aoc-cookie) "https://adventofcode.com/$year/day/$day/input" > $txt
+fi
+cat $txt
