@@ -9,16 +9,11 @@ fn main() {
     let mut sum: u64 = 0;
     for line in io::stdin().lines() {
         match line {
-            Ok(line) => match decode_line(&line) {
-                Ok(num) => {
-                    println!("{} decoded to {}", line, num);
-                    sum += num as u64;
-                }
-                Err(msg) => {
-                    eprintln!("Error decoding line: {}", msg);
-                    return;
-                }
-            },
+            Ok(line) => {
+                let num = decode_line(&line);
+                println!("{} decoded to {}", line, num);
+                sum += num as u64;
+            }
             Err(e) => {
                 eprintln!("Error reading line: {}", e);
                 return;
@@ -28,10 +23,10 @@ fn main() {
     println!("The final sum is {}", sum);
 }
 
-fn decode_line(line: &str) -> Result<u8, String> {
+fn decode_line(line: &str) -> u8 {
     lazy_static! {
         static ref RE: Regex =
-            Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
+            Regex::new("[0-9]|zero|one|two|three|four|five|six|seven|eight|nine").unwrap();
     }
 
     // find first and last regular match
@@ -52,13 +47,14 @@ fn decode_line(line: &str) -> Result<u8, String> {
 
     // combine digits
     match digits {
-        (Some(first), Some(last)) => Ok(first * 10 + last),
-        _ => Err(format!("No digits in line: {}", line)),
+        (Some(first), Some(last)) => first * 10 + last,
+        _ => 0,
     }
 }
 
 fn decode_digit(digit_str: &str) -> Option<u8> {
     match digit_str {
+        "0" | "zero" => Some(0),
         "1" | "one" => Some(1),
         "2" | "two" => Some(2),
         "3" | "three" => Some(3),
