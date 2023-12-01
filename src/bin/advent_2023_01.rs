@@ -24,19 +24,17 @@ fn main() {
 }
 
 fn decode_line(line: &str) -> Result<u8, String> {
-    let mut first_digit = None;
-    let mut last_digit = None;
+    let mut digits: Vec<u8> = Vec::new();
+
     for byte in line.bytes() {
-        if byte >= b'0' && byte <= b'9' {
-            if first_digit.is_none() {
-                first_digit = Some(byte - b'0');
-            }
-            last_digit = Some(byte - b'0');
+        if byte.is_ascii_digit() {
+            digits.push(byte - b'0');
         }
     }
 
-    match (first_digit, last_digit) {
-        (Some(first), Some(last)) => Ok(first * 10 + last),
-        _ => Err(format!("Did not find two digits in line: {}", line)),
+    match digits[..] {
+        [only] => Ok(only * 10 + only),
+        [first, .., last] => Ok(first * 10 + last),
+        _ => Err(format!("Did not find digits in line: {}", line)),
     }
 }
