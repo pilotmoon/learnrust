@@ -6,4 +6,4 @@ if [[ -z $year || -z $day ]]; then
   echo "Usage: $0 <year> <day>"
   exit 1
 fi
-curl --cookie $(cat ~/.aoc-cookie) "https://adventofcode.com/$year/day/$day/input"
+curl --silent --cookie $(cat ~/.aoc-cookie) "https://adventofcode.com/$year/day/$day/input"
