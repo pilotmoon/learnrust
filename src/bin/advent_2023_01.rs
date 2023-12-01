@@ -34,25 +34,22 @@ fn decode_line(line: &str) -> Result<u8, String> {
             Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
     }
 
-    let mut last = None;
-    let mut digits: Vec<Option<u8>> = RE
-        .find_iter(line)
-        .map(|m| {
-            last = Some(m);
-            decode_digit(m.as_str())
-        })
-        .collect();
+    // find first and last regular match
+    let mut iter = RE.find_iter(line);
+    let first_match = iter.next();
+    let last_match = iter.last().or(first_match);
 
-    // find additional match that may be overlapping the last match expr
-    if let Some(last) = last {
-        if let Some(m) = RE.find(&line[(last.start() + 1)..]) {
-            digits.push(decode_digit(m.as_str()));
-        }
-    }
+    // find overlapping final match, if any
+    let last_match = last_match
+        .and_then(|m| RE.find(&line[(m.start() + 1)..]))
+        .or(last_match);
 
-    match digits[..] {
-        [Some(only)] => Ok(only * 10 + only),
-        [Some(first), .., Some(last)] => Ok(first * 10 + last),
+    let ends = (
+        first_match.and_then(|m| decode_digit(m.as_str())),
+        last_match.and_then(|m| decode_digit(m.as_str())),
+    );
+    match ends {
+        (Some(first), Some(last)) => Ok(first * 10 + last),
         _ => Err(format!("Did not find digits in line: {}", line)),
     }
 }
