@@ -31,7 +31,7 @@ fn decode_line(line: &str) -> Result<u8, String> {
     let re = Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
     let mut i = 0;
     while let Some(m) = re.find(&line[i..]) {
-        i = i + m.start() + 1;
+        i += m.start() + 1;
         match decode_digit(m.as_str()) {
             Some(d) => digits.push(d),
             None => return Err(format!("Could not decode: {}", m.as_str())),
