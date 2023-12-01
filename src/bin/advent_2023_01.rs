@@ -27,15 +27,19 @@ fn main() {
 fn decode_line(line: &str) -> Result<u8, String> {
     let mut digits: Vec<u8> = Vec::new();
 
-    // find digts in line using sliding window
-    // because last digit in "3two3eightjszbfourkxbh5twonepr" is "one"
-    let re = Regex::new("^([1-9]|one|two|three|four|five|six|seven|eight|nine)").unwrap();
-    for (i, _) in line.chars().enumerate() {
-        if let Some(m) = re.find(&line[i..]) {
-            match decode_digit(m.as_str()) {
-                Some(d) => digits.push(d),
-                None => return Err(format!("Could not decode: {}", m.as_str())),
+    // find all digit strings in line, allowing for overlap
+    let re = Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
+    let mut i = 0;
+    loop {
+        match re.find(&line[i..]) {
+            Some(m) => {
+                i = i + m.start() + 1;
+                match decode_digit(m.as_str()) {
+                    Some(d) => digits.push(d),
+                    None => return Err(format!("Could not decode: {}", m.as_str())),
+                }
             }
+            None => break,
         }
     }
 
