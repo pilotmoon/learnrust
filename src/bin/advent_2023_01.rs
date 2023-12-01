@@ -44,11 +44,14 @@ fn decode_line(line: &str) -> Result<u8, String> {
         .and_then(|m| RE.find(&line[(m.start() + 1)..]))
         .or(last_match);
 
-    let ends = (
+    // map the end matches to their digits
+    let digits = (
         first_match.and_then(|m| decode_digit(m.as_str())),
         last_match.and_then(|m| decode_digit(m.as_str())),
     );
-    match ends {
+
+    // combine digits
+    match digits {
         (Some(first), Some(last)) => Ok(first * 10 + last),
         _ => Err(format!("Did not find digits in line: {}", line)),
     }
