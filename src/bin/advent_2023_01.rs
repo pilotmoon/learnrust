@@ -1,13 +1,17 @@
 use regex::Regex;
 use std::io;
 
+#[macro_use]
+extern crate lazy_static;
+
 fn main() {
+    println!("started");
     let mut sum: u64 = 0;
     for line in io::stdin().lines() {
         match line {
             Ok(line) => match decode_line(&line) {
                 Ok(num) => {
-                    println!("{} decoded to {}", line, num);
+                    // println!("{} decoded to {}", line, num);
                     sum += num as u64;
                 }
                 Err(msg) => {
@@ -28,9 +32,12 @@ fn decode_line(line: &str) -> Result<u8, String> {
     let mut digits: Vec<u8> = Vec::new();
 
     // find all digit strings in line, allowing for overlap
-    let re = Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
+    lazy_static! {
+        static ref RE: Regex =
+            Regex::new("[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
+    }
     let mut i = 0;
-    while let Some(m) = re.find(&line[i..]) {
+    while let Some(m) = RE.find(&line[i..]) {
         i += m.start() + 1;
         match decode_digit(m.as_str()) {
             Some(d) => digits.push(d),
