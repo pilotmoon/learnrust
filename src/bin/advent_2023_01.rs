@@ -25,31 +25,23 @@ fn main() {
 }
 
 fn decode_line(line: &str) -> Result<u8, String> {
-    let mut first = None;
-    let mut last = None;
+    let mut digits: Vec<u8> = Vec::new();
 
-    // find first digit in the line
-    let re = Regex::new(r"[1-9]|one|two|three|four|five|six|seven|eight|nine").unwrap();
-    if let Some(m) = re.find(line) {
-        match decode_digit(m.as_str()) {
-            Some(d) => first = Some(d),
-            None => return Err(format!("Could not decode: {}", m.as_str())),
+    // find digts in line using sliding window
+    // because last digit in "3two3eightjszbfourkxbh5twonepr" is "one"
+    let re = Regex::new("^([1-9]|one|two|three|four|five|six|seven|eight|nine)").unwrap();
+    for (i, _) in line.chars().enumerate() {
+        if let Some(m) = re.find(&line[i..]) {
+            match decode_digit(m.as_str()) {
+                Some(d) => digits.push(d),
+                None => return Err(format!("Could not decode: {}", m.as_str())),
+            }
         }
     }
 
-    // find last digit in the line
-    let rf = Regex::new(r"[1-9]|eno|owt|eerht|ruof|evif|xis|neves|thgie|enin").unwrap();
-    let rev_line: String = line.chars().rev().collect();
-    if let Some(m) = rf.find(&rev_line) {
-        let rev_m: String = m.as_str().chars().rev().collect();
-        match decode_digit(&rev_m) {
-            Some(d) => last = Some(d),
-            None => return Err(format!("Could not decode: {}", rev_m.as_str())),
-        }
-    }
-
-    match (first, last) {
-        (Some(first), Some(last)) => Ok(first * 10 + last),
+    match digits[..] {
+        [only] => Ok(only * 10 + only),
+        [first, .., last] => Ok(first * 10 + last),
         _ => Err(format!("Did not find digits in line: {}", line)),
     }
 }
