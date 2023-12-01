@@ -14,7 +14,7 @@ fn main() {
             }
         }
         if floor == -1 && basement_pos.is_none() {
-            basement_pos = Some(pos);
+            // basement_pos = Some(pos);
         }
     }
     if let Some(pos) = basement_pos {
