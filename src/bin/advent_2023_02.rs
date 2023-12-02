@@ -4,13 +4,18 @@ use std::io;
 
 fn main() {
     println!("Started");
+    let stock = ColorCounts {
+        r: 12,
+        g: 13,
+        b: 14,
+    };
     let mut sum: usize = 0;
     let mut sum_power: usize = 0;
     for (i, line) in io::stdin().lines().enumerate() {
         match line {
             Ok(line) => match parse_game(&line) {
                 Ok(game) => {
-                    let (possible, power) = analyse(game, (12, 13, 14));
+                    let (possible, power) = analyse(&game, &stock);
                     if possible {
                         sum += i + 1;
                     }
@@ -32,34 +37,41 @@ fn main() {
     );
 }
 
-fn analyse(game: Vec<(usize, usize, usize)>, stock: (usize, usize, usize)) -> (bool, usize) {
-    let mut seen = (0, 0, 0);
-    for subset in game.iter() {
-        seen.0 = cmp::max(seen.0, subset.0);
-        seen.1 = cmp::max(seen.1, subset.1);
-        seen.2 = cmp::max(seen.2, subset.2);
-    }
+struct ColorCounts {
+    r: usize,
+    g: usize,
+    b: usize,
+}
+
+fn analyse(game: &Vec<ColorCounts>, stock: &ColorCounts) -> (bool, usize) {
+    let seen = game
+        .iter()
+        .fold(ColorCounts { r: 0, g: 0, b: 0 }, |acc, x| ColorCounts {
+            r: cmp::max(acc.r, x.r),
+            g: cmp::max(acc.g, x.g),
+            b: cmp::max(acc.b, x.b),
+        });
     (
-        seen.0 <= stock.0 && seen.1 <= stock.1 && seen.2 <= stock.2,
-        seen.0 * seen.1 * seen.2,
+        seen.r <= stock.r && seen.g <= stock.g && seen.g <= stock.b,
+        seen.r * seen.g * seen.b,
     )
 }
 
-fn parse_game(line: &str) -> Result<Vec<(usize, usize, usize)>, String> {
+fn parse_game(line: &str) -> Result<Vec<ColorCounts>, String> {
     match line.split_once(':') {
         Some((_, game_str)) => {
             let mut game = Vec::new();
             for round_str in game_str.split(';').map(str::trim) {
-                let mut round = (0, 0, 0);
+                let mut round = ColorCounts { r: 0, g: 0, b: 0 };
                 for subset_str in round_str.split(',').map(str::trim) {
                     match subset_str.split_once(' ') {
                         Some((num, col)) => {
                             let num: Result<usize, _> = num.parse();
                             if let Ok(num) = num {
                                 match col {
-                                    "red" => round.0 += num,
-                                    "green" => round.1 += num,
-                                    "blue" => round.2 += num,
+                                    "red" => round.r += num,
+                                    "green" => round.g += num,
+                                    "blue" => round.b += num,
                                     _ => todo!("unexpected color"),
                                 }
                             }
